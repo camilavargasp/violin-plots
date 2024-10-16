@@ -43,11 +43,11 @@ survey_long_tx <- survey_tx %>%
 
 
 # Basic plot ----
-ggplot(survey_long_tx, 
-       aes(survey_year, 
-           site, 
-           fill = surveyed ))+
-  geom_tile()
+# ggplot(survey_long_tx, 
+#        aes(survey_year, 
+#            site, 
+#            fill = surveyed ))+
+#   geom_tile()
 
 
 ## DF by region
@@ -90,7 +90,7 @@ tx_survey_plot_west <- ggplot(west_sites,
              scales = "free_y",
              space = "free_y",
              switch = "y")+
-  scale_y_discrete(expand = expansion(mult = 0.02)) #expansion(mult = 0.02)
+  scale_y_discrete(expand = expansion(mult = 0.02)) ## I believe this is not doing anythiny
 
 tx_survey_plot_west  
 
@@ -162,6 +162,7 @@ tx_survey_plot_east <- ggplot(east_sites,
 
 tx_survey_plot_east
 
+## Combining plot using the patwork package
 
 all_plots <- tx_survey_plot_west/tx_survey_plot_mainland/tx_survey_plot_east+
   plot_annotation(
@@ -171,10 +172,13 @@ all_plots <- tx_survey_plot_west/tx_survey_plot_mainland/tx_survey_plot_east+
 
 all_plots
 
+
 # ggsave(here("Plots//Sites_Info_Maps//tx_survey_plot.pdf"), tx_survey_plot, width = 14, height = 8)
 
 # title = "Survey Timeseries of Selected PISCO Sites in the Santa Barbara Channel"
 
+
+# -----------------
 
 #NEXT STEPS TO DO: THANKS CAMILA! 
 #1. Fix tile height so there is more space between site names in y-axis. 
