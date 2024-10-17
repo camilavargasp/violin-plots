@@ -18,11 +18,9 @@ sites_data <- read_csv("data/upc_sites_sofia.csv") %>%
 
 
 # 2. SITE SURVEY TIMESERIES (TABLE) ----
-
 #Table of sites & timeseries data. Before creating a figure, prep the data. 
 
 # Dplyr method ----
-
 # Reshape the data using pivot_wider
 survey_tx <- upc_swath_ucsb %>%
   pivot_wider(id_cols = site, 
@@ -42,15 +40,8 @@ survey_long_tx <- survey_tx %>%
   left_join(sites_data, by = "site")
 
 
-# Basic plot ----
-# ggplot(survey_long_tx, 
-#        aes(survey_year, 
-#            site, 
-#            fill = surveyed ))+
-#   geom_tile()
 
-
-## DF by region
+## DF by region ----
 east_sites <- survey_long_tx %>% 
   filter(region == "East")
 
@@ -62,7 +53,6 @@ west_sites <- survey_long_tx %>%
 
 
 # Polished plot by region ----
-
 ## WEST----
 tx_survey_plot_west <- ggplot(west_sites, 
                          aes(survey_year, 
@@ -74,14 +64,15 @@ tx_survey_plot_west <- ggplot(west_sites,
             aes(height = 1)) + #this is the line that makes tile height uneven
   geom_text(size = 2, 
             color = "black") +
-  labs(y = "West") +
+  # labs(y = "West") +
   scale_fill_viridis_c(direction = -1,
-                       alpha = 0.6)+
-  # scale_fill_manual(values = c("salmon", "darkseagreen"))+
+                       alpha = 0.6,
+                       limits = c(0, 12),
+                       breaks = c(0, 4, 8, 12))+
   theme_bw() +
-  theme(legend.position = "none", 
-        # plot.title = element_text(hjust = 0.8),
-        axis.text.y = element_text(size = 5),
+  theme(legend.position = "bottom", 
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 7),
         axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -90,7 +81,8 @@ tx_survey_plot_west <- ggplot(west_sites,
              scales = "free_y",
              space = "free_y",
              switch = "y")+
-  scale_y_discrete(expand = expansion(mult = 0.02)) ## I believe this is not doing anythiny
+  scale_x_discrete(expand = c(0,0))+
+  scale_y_discrete(expand = c(0,0))
 
 tx_survey_plot_west  
 
@@ -105,14 +97,16 @@ tx_survey_plot_mainland <- ggplot(mainland_sites,
             aes(height = 1)) + #this is the line that makes tile height uneven
   geom_text(size = 2, 
             color = "black") +
-  labs(y = "Mainland") +
+  # labs(y = "Mainland") +
   scale_fill_viridis_c(direction = -1,
-                       alpha = 0.6)+
+                       alpha = 0.6,
+                       limits = c(0, 12),
+                       breaks = c(0, 4, 8, 12))+
   # scale_fill_manual(values = c("salmon", "darkseagreen"))+
   theme_bw() +
-  theme(legend.position = "none", 
-        # plot.title = element_text(hjust = 0.8),
-        axis.text.y = element_text(size = 5),
+  theme(legend.position = "bottom", 
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 7),
         axis.text.x = element_blank(),
         axis.title.x = element_blank(),
         axis.ticks.x = element_blank(),
@@ -121,13 +115,13 @@ tx_survey_plot_mainland <- ggplot(mainland_sites,
              scales = "free_y",
              space = "free_y",
              switch = "y")+
-  scale_y_discrete(expand = expansion(mult = 0.02)) #expansion(mult = 0.02)
+  scale_x_discrete(expand = c(0,0))+
+  scale_y_discrete(expand = c(0,0))
 
 
 tx_survey_plot_mainland
 
 ## EAST ----
-
 tx_survey_plot_east <- ggplot(east_sites, 
                               aes(survey_year, 
                                   site_clean, 
@@ -138,16 +132,16 @@ tx_survey_plot_east <- ggplot(east_sites,
             aes(height = 1)) + #this is the line that makes tile height uneven
   geom_text(size = 2, 
             color = "black") +
-  labs(y = "East",
-       x = "Year",
-       fill = "TX") +
+  labs(
+       x = "Year") + #y = "East",
   scale_fill_viridis_c(direction = -1,
-                       alpha = 0.6)+
-  # scale_fill_manual(values = c("salmon", "darkseagreen"))+
+                       alpha = 0.6,
+                       limits = c(0, 12),
+                       breaks = c(0, 4, 8, 12))+
   theme_bw() +
   theme(legend.position = "bottom", 
-        # plot.title = element_text(hjust = 0.8),
-        axis.text.y = element_text(size = 5),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 7),
         axis.text.x = element_text(size = 7,
                                    angle = 45,
                                    hjust = 0.5,
@@ -157,82 +151,24 @@ tx_survey_plot_east <- ggplot(east_sites,
              scales = "free_y",
              space = "free_y",
              switch = "y")+
-  scale_y_discrete(expand = expansion(mult = c(0,0)))
+  scale_x_discrete(expand = c(0,0))+
+  scale_y_discrete(expand = c(0,0))
 
 
 tx_survey_plot_east
 
-## Combining plot using the patwork package
+## Combining plot using the patchwork package ----
 
 all_plots <- tx_survey_plot_west/tx_survey_plot_mainland/tx_survey_plot_east+
   plot_annotation(
     'Survey Timeseries of Selected PISCO Sites in the Santa Barbara Channel', 
     theme=theme(plot.title=element_text(hjust=0.5)))+
-  plot_layout(heights = c(2, 1, 3))
+  plot_layout(heights = c(2, 1, 3),
+              guides = "collect") &
+  theme(legend.position = "bottom")
 
 all_plots
 
-
-# ggsave(here("Plots//Sites_Info_Maps//tx_survey_plot.pdf"), tx_survey_plot, width = 14, height = 8)
-
-# title = "Survey Timeseries of Selected PISCO Sites in the Santa Barbara Channel"
-
-
-# -----------------
-
-#NEXT STEPS TO DO: THANKS CAMILA! 
-#1. Fix tile height so there is more space between site names in y-axis. 
-#2. Change the format of "sites": instead of them appearing as "SCI_SOUTH_POINT_E", I want them to be only South Point East, or West, or Centre (for CEN). 
-#2. Reorder the appearance of sites: On the y-axis, I would like brackets that group them in the respective regions. I want them to appear grouped by region. Top are Eastern sites, then the Western sites, then the Mainland. 
-
-#3. Change color of cells: so that the colors of cells have 3 potential values (maybe white, light blue, and purple? for instance one color for 0 surveys, and then for other surveys). I want a diverging color palette that is color-blind friendly, cause red and green now is bad. 
-
-
-
-#----------------- TEST ZONE -----------------------------
-#2. How to reorder sites by island (indicate with a symbol, or add brackets around the sites) --> library(pBrackets) + multcompView
-my_plot_with_brackets <- pBrackets(
-  p = my_plot,
-  categories = c("Group A", "Group B"),
-  labels = c("Group 1", "Group 2"),
-  type = "brace"
-)
-
-scale_x_discrete(guide = guide_prism_bracket(width = 0.12, outside = FALSE))
-
-test + scale_y_discrete(guide = "prism_bracket")
-
-#3. Tried changing colors to continuous gradient so we can see more variety: 0, 4, 6, 6+
-
-# create a new variable "range" for count intervals
-
-test_reshaped_long_tx <- survey_long_tx %>% 
-  mutate(interval = case_when(
-    tx == 0 ~ "0",
-    tx <= 3 ~ "1-3",
-    tx <= 6 ~ "4-6",
-    tx <= 9 ~ "7-9",
-    TRUE ~ "10-12"
-  ))
-
-#Custom colors:
-custom_cols <- brewer.pal(9, "YlGnBu")[c(1, 3, 5, 6, 7)]
-
-#Now we plot:
-test <- ggplot(test_reshaped_long_tx, aes(survey_year, site, fill = interval, label = tx)) +
-  geom_tile(color = "black", size = 0.05, aes(height = 1)) + #this is the line that makes tile height uneven
-  geom_text(size = 2, color = "black") +
-  labs(title = "Survey Timeseries of Selected PISCO Sites in the Santa Barbara Channel",
-       x = "Survey Year (2000 - 2021)",
-       y = "Site", 
-       fill = "Surveyed") +
-  scale_y_discrete(guide = guide_prism_bracket(width = 0.12, outside = FALSE)) +
-  scale_fill_manual(values = custom_cols) +
-  # scale_fill_brewer(palette = "BuPu") +
-  theme_minimal() +
-  theme(legend.position = "right", plot.title = element_text(hjust = 0.8)) + scale_y_discrete(expand = expansion(mult = 0.02))
-
-test
-
-
+## Save plot to png ----
+ggsave("plots/tx_survey_plot.png", all_plots, width = 8, height = 10)
 
